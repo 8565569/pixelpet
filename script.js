@@ -21,7 +21,8 @@ const state = {
   lastSaved: Date.now(),
   walletConnected: false,
   walletAddress: '',
-  walletBalance: 0
+  walletBalance: 0,
+  lastFrame: Date.now()
 };
 
 // ===== DOM 元素引用 =====
@@ -29,10 +30,12 @@ const elements = {
   appContainer: document.getElementById('app-container'),
   topBar: document.getElementById('top-bar'),
   bottomNav: document.getElementById('bottom-nav'),
-  walletInfo: document.getElementById('wallet-info'),
-  walletAddress: document.getElementById('wallet-address'),
-  walletBalance: document.getElementById('wallet-balance'),
-  connectWallet: document.getElementById('connect-wallet')
+  walletInfo: null,
+  walletAddress: null,
+  walletBalance: null,
+  connectWallet: null,
+  pet: null,
+  petDisplay: null
 };
 
 // ===== 初始化游戏 =====
@@ -47,7 +50,7 @@ function initGame() {
   loadGame();
   
   // 开始游戏主循环
-  gameLoop();
+  requestAnimationFrame(gameLoop);
   
   // 显示欢迎消息
   showMessage('欢迎收养你的像素宠物！', '#00adb5', 4000);
@@ -65,6 +68,10 @@ function loadComponents() {
       elements.walletAddress = document.getElementById('wallet-address');
       elements.walletBalance = document.getElementById('wallet-balance');
       setupWalletEvents();
+    })
+    .catch(error => {
+      console.error('加载顶部栏失败:', error);
+      elements.topBar.innerHTML = '<div class="error">顶部栏加载失败</div>';
     });
   
   // 加载底部导航
@@ -74,31 +81,55 @@ function loadComponents() {
       elements.bottomNav.innerHTML = html;
       setupNavigationEvents();
       // 默认激活首页
-      document.querySelector('.nav-item[data-page="home-page"]').classList.add('active');
+      const homeNav = document.querySelector('.nav-item[data-page="home-page"]');
+      if (homeNav) {
+        homeNav.classList.add('active');
+      }
       loadPage('home-page');
+    })
+    .catch(error => {
+      console.error('加载底部导航失败:', error);
+      elements.bottomNav.innerHTML = '<div class="error">导航栏加载失败</div>';
     });
 }
 
 // ===== 页面加载 =====
 function loadPage(pageId) {
-  // 隐藏所有页面
-  document.querySelectorAll('.page').forEach(page => {
-    page.classList.remove('active');
-  });
-  
-  // 加载请求的页面
-  fetch(`components/${pageId}.html`)
-    .then(response => response.text())
-    .then(html => {
-      elements.appContainer.innerHTML = html;
-      document.getElementById(pageId).classList.add('active');
-      
-      // 设置页面特定事件
-      setupPageEvents(pageId);
-      
-      // 更新UI
-      updateUI();
+  try {
+    // 隐藏所有页面
+    document.querySelectorAll('.page').forEach(page => {
+      page.classList.remove('active');
     });
+    
+    // 加载请求的页面
+    fetch(`components/${pageId}.html`)
+      .then(response => response.text())
+      .then(html => {
+        elements.appContainer.innerHTML = html;
+        const pageElement = document.getElementById(pageId);
+        if (pageElement) {
+          pageElement.classList.add('active');
+          
+          // 设置页面特定事件
+          setupPageEvents(pageId);
+          
+          // 更新UI
+          updateUI();
+        }
+      })
+      .catch(error => {
+        console.error(`加载页面 ${pageId} 失败:`, error);
+        elements.appContainer.innerHTML = `
+          <div class="error-page">
+            <h2>页面加载失败</h2>
+            <p>${error.message}</p>
+            <button onclick="loadPage('home-page')">返回首页</button>
+          </div>
+        `;
+      });
+  } catch (error) {
+    console.error(`加载页面 ${pageId} 时出错:`, error);
+  }
 }
 
 // ===== 设置事件监听器 =====
@@ -138,6 +169,7 @@ function setupWalletEvents() {
       
       // 保存连接状态
       localStorage.setItem('walletConnected', 'true');
+      localStorage.setItem('walletAddress', state.walletAddress);
     } catch (error) {
       console.error('钱包连接失败:', error);
       showMessage('钱包连接失败: ' + error.message, '#ff6b6b', 4000);
@@ -179,10 +211,22 @@ function setupPageEvents(pageId) {
 }
 
 function setupHomeEvents() {
-  document.getElementById('feed-btn').addEventListener('click', feedPet);
-  document.getElementById('play-btn').addEventListener('click', playWithPet);
-  document.getElementById('clean-btn').addEventListener('click', cleanPet);
-  document.getElementById('heal-btn').addEventListener('click', healPet);
+  // 获取元素引用
+  elements.pet = document.getElementById('pet');
+  elements.petDisplay = document.getElementById('pet-display');
+  
+  // 添加事件监听器
+  const feedBtn = document.getElementById('feed-btn');
+  if (feedBtn) feedBtn.addEventListener('click', feedPet);
+  
+  const playBtn = document.getElementById('play-btn');
+  if (playBtn) playBtn.addEventListener('click', playWithPet);
+  
+  const cleanBtn = document.getElementById('clean-btn');
+  if (cleanBtn) cleanBtn.addEventListener('click', cleanPet);
+  
+  const healBtn = document.getElementById('heal-btn');
+  if (healBtn) healBtn.addEventListener('click', healPet);
 }
 
 function setupAchievementsEvents() {
@@ -190,16 +234,27 @@ function setupAchievementsEvents() {
 }
 
 function setupMinigameEvents() {
-  document.getElementById('minigame-start').addEventListener('click', startMinigame);
-  document.getElementById('minigame-exit').addEventListener('click', () => {
-    document.querySelector('.nav-item[data-page="home-page"]').click();
-  });
+  const startBtn = document.getElementById('minigame-start');
+  if (startBtn) startBtn.addEventListener('click', startMinigame);
+  
+  const exitBtn = document.getElementById('minigame-exit');
+  if (exitBtn) {
+    exitBtn.addEventListener('click', () => {
+      stopMinigame();
+      document.querySelector('.nav-item[data-page="home-page"]')?.click();
+    });
+  }
 }
 
 function setupSettingsEvents() {
-  document.getElementById('share-facebook').addEventListener('click', () => sharePet('Facebook'));
-  document.getElementById('share-twitter').addEventListener('click', () => sharePet('Twitter'));
-  document.getElementById('share-whatsapp').addEventListener('click', () => sharePet('WhatsApp'));
+  const fbBtn = document.getElementById('share-facebook');
+  if (fbBtn) fbBtn.addEventListener('click', () => sharePet('Facebook'));
+  
+  const twitterBtn = document.getElementById('share-twitter');
+  if (twitterBtn) twitterBtn.addEventListener('click', () => sharePet('Twitter'));
+  
+  const waBtn = document.getElementById('share-whatsapp');
+  if (waBtn) waBtn.addEventListener('click', () => sharePet('WhatsApp'));
 }
 
 // ===== 宠物交互功能 =====
@@ -211,18 +266,21 @@ function feedPet() {
   // 第一次喂食成就
   if (!state.achievements.firstFeed) {
     state.achievements.firstFeed = true;
-    document.getElementById('ach-first-feed').classList.add('unlocked');
+    const achElement = document.getElementById('ach-first-feed');
+    if (achElement) achElement.classList.add('unlocked');
     showMessage('成就解锁：第一次喂食！', '#ffd700', 4000);
     updateAchievementsCount();
   }
   
   // 吃东西动画
-  elements.pet.classList.remove('float');
-  elements.pet.style.transform = 'scale(1.1)';
-  setTimeout(() => {
-    elements.pet.style.transform = 'scale(1)';
-    elements.pet.classList.add('float');
-  }, 300);
+  if (elements.pet) {
+    elements.pet.classList.remove('float');
+    elements.pet.style.transform = 'scale(1.1)';
+    setTimeout(() => {
+      elements.pet.style.transform = 'scale(1)';
+      elements.pet.classList.add('float');
+    }, 300);
+  }
   
   // 30%几率拉便便
   if (Math.random() > 0.7) {
@@ -240,23 +298,26 @@ function playWithPet() {
   // 第一次玩耍成就
   if (!state.achievements.firstPlay) {
     state.achievements.firstPlay = true;
-    document.getElementById('ach-first-play').classList.add('unlocked');
+    const achElement = document.getElementById('ach-first-play');
+    if (achElement) achElement.classList.add('unlocked');
     showMessage('成就解锁：第一次玩耍！', '#ffd700', 4000);
     updateAchievementsCount();
   }
   
   // 跳跃动画
-  elements.pet.classList.remove('float');
-  let jumpCount = 0;
-  const jumpInterval = setInterval(() => {
-    elements.pet.style.transform = `translateY(${-20 + 20 * Math.abs(Math.sin(jumpCount))}px)`;
-    jumpCount += 0.5;
-    if (jumpCount > 3) {
-      clearInterval(jumpInterval);
-      elements.pet.style.transform = 'translateY(0)';
-      elements.pet.classList.add('float');
-    }
-  }, 100);
+  if (elements.pet) {
+    elements.pet.classList.remove('float');
+    let jumpCount = 0;
+    const jumpInterval = setInterval(() => {
+      elements.pet.style.transform = `translateY(${-20 + 20 * Math.abs(Math.sin(jumpCount))}px)`;
+      jumpCount += 0.5;
+      if (jumpCount > 3) {
+        clearInterval(jumpInterval);
+        elements.pet.style.transform = 'translateY(0)';
+        elements.pet.classList.add('float');
+      }
+    }, 100);
+  }
   
   updateUI();
 }
@@ -269,16 +330,19 @@ function cleanPet() {
   // 清洁大师成就
   if (state.achievements.cleanMaster === false) {
     state.achievements.cleanMaster = true;
-    document.getElementById('ach-clean-master').classList.add('unlocked');
+    const achElement = document.getElementById('ach-clean-master');
+    if (achElement) achElement.classList.add('unlocked');
     showMessage('成就解锁：清洁大师！', '#ffd700', 4000);
     updateAchievementsCount();
   }
   
   // 清洁动画
-  elements.petDisplay.style.backgroundColor = '#0f3460';
-  setTimeout(() => {
-    elements.petDisplay.style.backgroundColor = '';
-  }, 500);
+  if (elements.petDisplay) {
+    elements.petDisplay.style.backgroundColor = '#0f3460';
+    setTimeout(() => {
+      elements.petDisplay.style.backgroundColor = '';
+    }, 500);
+  }
   
   updateUI();
 }
@@ -291,7 +355,8 @@ function healPet() {
   // 完全健康成就
   if (state.health >= 100 && !state.achievements.fullHealth) {
     state.achievements.fullHealth = true;
-    document.getElementById('ach-full-health').classList.add('unlocked');
+    const achElement = document.getElementById('ach-full-health');
+    if (achElement) achElement.classList.add('unlocked');
     showMessage('成就解锁：完全健康！', '#ffd700', 4000);
     updateAchievementsCount();
   }
@@ -304,20 +369,24 @@ function addPoop() {
   state.poopCount++;
   state.cleanliness = Math.max(0, state.cleanliness - 15);
   
-  const poop = document.createElement('div');
-  poop.className = 'poop';
-  poop.style.left = `${20 + Math.random() * 80}%`;
-  poop.style.transform = `scale(${0.8 + Math.random() * 0.4})`;
-  poop.dataset.id = Date.now();
-  
-  elements.petDisplay.appendChild(poop);
-  showMessage('宠物拉便便了！', '#795548');
-  updateUI();
+  if (elements.petDisplay) {
+    const poop = document.createElement('div');
+    poop.className = 'poop';
+    poop.style.left = `${20 + Math.random() * 80}%`;
+    poop.style.transform = `scale(${0.8 + Math.random() * 0.4})`;
+    poop.dataset.id = Date.now();
+    
+    elements.petDisplay.appendChild(poop);
+    showMessage('宠物拉便便了！', '#795548');
+    updateUI();
+  }
 }
 
 function removeAllPoop() {
-  document.querySelectorAll('.poop').forEach(poop => poop.remove());
-  state.poopCount = 0;
+  if (elements.petDisplay) {
+    document.querySelectorAll('.poop').forEach(poop => poop.remove());
+    state.poopCount = 0;
+  }
 }
 
 function showMessage(text, color, duration = 3000) {
@@ -342,10 +411,17 @@ function updateUI() {
     document.getElementById('clean-fill').style.width = `${state.cleanliness}%`;
     
     // 更新数值显示
-    document.getElementById('hunger-value').textContent = `${Math.round(state.hunger)}%`;
-    document.getElementById('happiness-value').textContent = `${Math.round(state.happiness)}%`;
-    document.getElementById('health-value').textContent = `${Math.round(state.health)}%`;
-    document.getElementById('clean-value').textContent = `${Math.round(state.cleanliness)}%`;
+    const hungerValue = document.getElementById('hunger-value');
+    if (hungerValue) hungerValue.textContent = `${Math.round(state.hunger)}%`;
+    
+    const happinessValue = document.getElementById('happiness-value');
+    if (happinessValue) happinessValue.textContent = `${Math.round(state.happiness)}%`;
+    
+    const healthValue = document.getElementById('health-value');
+    if (healthValue) healthValue.textContent = `${Math.round(state.health)}%`;
+    
+    const cleanValue = document.getElementById('clean-value');
+    if (cleanValue) cleanValue.textContent = `${Math.round(state.cleanliness)}%`;
   }
   
   // 更新游戏时间
@@ -376,8 +452,9 @@ function updatePetAppearance() {
       pet.classList.add('pet-evolved');
       state.petState = 'evolved';
       state.achievements.evolved = true;
-      if (document.getElementById('ach-evolved')) {
-        document.getElementById('ach-evolved').classList.add('unlocked');
+      const achElement = document.getElementById('ach-evolved');
+      if (achElement) {
+        achElement.classList.add('unlocked');
       }
       showMessage('宠物进化了！', '#ffd700', 5000);
       updateAchievementsCount();
@@ -428,8 +505,9 @@ function getPetStatus() {
 
 function updateAchievementsCount() {
   const unlocked = Object.values(state.achievements).filter(a => a).length;
-  if (document.getElementById('achievements-count')) {
-    document.getElementById('achievements-count').textContent = `${unlocked}/6`;
+  const countElement = document.getElementById('achievements-count');
+  if (countElement) {
+    countElement.textContent = `${unlocked}/6`;
   }
 }
 
@@ -467,10 +545,12 @@ function loadGame() {
   
   // 检查钱包连接状态
   if (localStorage.getItem('walletConnected') === 'true') {
-    // 模拟点击连接钱包按钮
-    if (elements.connectWallet) {
-      setTimeout(() => elements.connectWallet.click(), 500);
-    }
+    state.walletConnected = true;
+    state.walletAddress = localStorage.getItem('walletAddress') || '';
+    state.walletBalance = parseFloat(localStorage.getItem('walletBalance') || 0);
+    
+    // 更新钱包UI
+    updateWalletUI();
   }
 }
 
@@ -525,10 +605,17 @@ async function getWalletBalance() {
     
     // 将余额从wei转换为BNB
     state.walletBalance = parseInt(balance) / 1e18;
-    elements.walletBalance.textContent = `余额: ${state.walletBalance.toFixed(4)} BNB`;
+    if (elements.walletBalance) {
+      elements.walletBalance.textContent = `余额: ${state.walletBalance.toFixed(4)} BNB`;
+    }
+    
+    // 保存余额
+    localStorage.setItem('walletBalance', state.walletBalance.toString());
   } catch (error) {
     console.error('获取余额失败:', error);
-    elements.walletBalance.textContent = '余额: 获取失败';
+    if (elements.walletBalance) {
+      elements.walletBalance.textContent = '余额: 获取失败';
+    }
   }
 }
 
@@ -539,6 +626,8 @@ function disconnectWallet() {
   updateWalletUI();
   showMessage('钱包已断开连接!', '#4cc9f0', 3000);
   localStorage.removeItem('walletConnected');
+  localStorage.removeItem('walletAddress');
+  localStorage.removeItem('walletBalance');
 }
 
 function updateWalletUI() {
@@ -549,8 +638,15 @@ function updateWalletUI() {
       <i class="fas fa-wallet"></i>
       断开连接
     `;
-    elements.walletInfo.style.display = 'block';
-    elements.walletAddress.textContent = shortenAddress(state.walletAddress);
+    if (elements.walletInfo) {
+      elements.walletInfo.style.display = 'block';
+    }
+    if (elements.walletAddress) {
+      elements.walletAddress.textContent = shortenAddress(state.walletAddress);
+    }
+    if (elements.walletBalance) {
+      elements.walletBalance.textContent = `余额: ${state.walletBalance.toFixed(4)} BNB`;
+    }
   } else {
     elements.connectWallet.innerHTML = `
       <i class="fas fa-wallet"></i>
@@ -595,16 +691,20 @@ function sharePet(platform) {
 }
 
 // ===== 游戏主循环 =====
-function gameLoop() {
-  // 自然消耗
-  state.hunger = Math.max(0, state.hunger - 0.2);
-  state.happiness = Math.max(0, state.happiness - 0.1);
+function gameLoop(timestamp) {
+  // 计算时间增量
+  const delta = timestamp - state.lastFrame;
+  state.lastFrame = timestamp;
+  
+  // 自然消耗 (按时间增量计算)
+  state.hunger = Math.max(0, state.hunger - 0.2 * (delta / 1000));
+  state.happiness = Math.max(0, state.happiness - 0.1 * (delta / 1000));
   
   // 健康系统
   if (state.hunger < 20 || state.cleanliness < 20) {
-    state.health = Math.max(0, state.health - 0.3);
+    state.health = Math.max(0, state.health - 0.3 * (delta / 1000));
   } else if (state.health < 100) {
-    state.health = Math.min(100, state.health + 0.1);
+    state.health = Math.min(100, state.health + 0.1 * (delta / 1000));
   }
   
   // 随机事件
@@ -619,7 +719,7 @@ function gameLoop() {
   }
   
   updateUI();
-  setTimeout(gameLoop, 1000); // 每秒更新一次
+  requestAnimationFrame(gameLoop);
 }
 
 // ===== 初始化游戏 =====
