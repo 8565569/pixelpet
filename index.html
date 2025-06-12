@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>像素电子宠物</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-container">
+    <div id="wallet-section">
+      <div id="wallet-info">
+        <div>已连接 BSC 链</div>
+        <div id="wallet-address"></div>
+        <div id="wallet-balance">余额: 0 BNB</div>
+      </div>
+      <button id="connect-wallet">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 8H19C20.1046 8 21 8.89543 21 10V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V10C3 8.89543 3.89543 8 5 8Z" stroke="#1a1a2e" stroke-width="2"/>
+          <path d="M6 8V4.5C6 3.67157 6.67157 3 7.5 3H16.5C17.3284 3 18 3.67157 18 4.5V8" stroke="#1a1a2e" stroke-width="2"/>
+          <path d="M12 15C13.1046 15 14 14.1046 14 13C14 11.8954 13.1046 11 12 11C10.8954 11 10 11.8954 10 13C10 14.1046 10.8954 15 12 15Z" fill="#1a1a2e"/>
+        </svg>
+        连接钱包
+      </button>
+    </div>
+    
+    <div id="game-header">
+      <h1>像素电子宠物</h1>
+      <p>照顾好你的 Web3 小伙伴！</p>
+    </div>
+    
+    <div class="web3-features">
+      <div class="web3-feature">
+        <h3>NFT 宠物</h3>
+        <p>将宠物作为 NFT 收藏</p>
+      </div>
+      <div class="web3-feature">
+        <h3>代币奖励</h3>
+        <p>赚取游戏代币</p>
+      </div>
+      <div class="web3-feature">
+        <h3>链上成就</h3>
+        <p>永久记录成就</p>
+      </div>
+    </div>
+    
+    <div id="stats">
+      <div class="stat-label">🍎 饥饿度: <span id="hunger-value">70%</span></div>
+      <div class="stat-bar"><div id="hunger-fill" class="stat-fill"></div></div>
+      
+      <div class="stat-label">😄 快乐度: <span id="happiness-value">85%</span></div>
+      <div class="stat-bar"><div id="happiness-fill" class="stat-fill"></div></div>
+      
+      <div class="stat-label">❤️ 健康值: <span id="health-value">100%</span></div>
+      <div class="stat-bar"><div id="health-fill" class="stat-fill"></div></div>
+      
+      <div class="stat-label">🧼 清洁度: <span id="clean-value">60%</span></div>
+      <div class="stat-bar"><div id="clean-fill" class="stat-fill"></div></div>
+    </div>
+    
+    <div id="pet-display">
+      <div id="pet" class="pet-normal float"></div>
+    </div>
+    
+    <div id="actions">
+      <button id="feed-btn">喂食 🍎</button>
+      <button id="play-btn">玩耍 🎾</button>
+      <button id="clean-btn">清洁 🧼</button>
+      <button id="heal-btn">治疗 💊</button>
+    </div>
+    
+    <div id="status-message"></div>
+    
+    <div id="achievements-container">
+      <h3>成就系统</h3>
+      <div class="achievements-grid">
+        <div class="achievement" id="ach-first-feed">
+          <span class="achievement-icon">🍎</span>
+          <div>第一次喂食</div>
+        </div>
+        <div class="achievement" id="ach-first-play">
+          <span class="achievement-icon">🎾</span>
+          <div>第一次玩耍</div>
+        </div>
+        <div class="achievement" id="ach-full-health">
+          <span class="achievement-icon">❤️</span>
+          <div>完全健康</div>
+        </div>
+        <div class="achievement" id="ach-clean-master">
+          <span class="achievement-icon">🧹</span>
+          <div>清洁大师</div>
+        </div>
+        <div class="achievement" id="ach-minigame">
+          <span class="achievement-icon">🎮</span>
+          <div>小游戏高手</div>
+        </div>
+        <div class="achievement" id="ach-evolved">
+          <span class="achievement-icon">🌟</span>
+          <div>宠物进化</div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="social-share">
+      <div class="share-btn" id="share-facebook">f</div>
+      <div class="share-btn" id="share-twitter">t</div>
+      <div class="share-btn" id="share-whatsapp">w</div>
+    </div>
+    
+    <div id="game-info">
+      <div id="game-time">⏱️ 游戏时间: <span id="time-value">0</span> 分钟</div>
+      <div>版本: 3.0 (Web3)</div>
+    </div>
+  </div>
+  
+  <div id="minigame-container">
+    <canvas id="minigame-canvas" width="300" height="400"></canvas>
+    <div class="minigame-controls">
+      <button id="minigame-start">开始游戏</button>
+      <button id="minigame-exit">退出</button>
+    </div>
+    <div id="minigame-score">得分: 0</div>
+    <div id="minigame-instruction">← → 键移动宠物接住食物</div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
