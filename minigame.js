@@ -1,4 +1,7 @@
 // ===== 小游戏功能 =====
+let minigameState = null;
+let minigameAnimationId = null;
+
 function startMinigame() {
   const canvas = document.getElementById('minigame-canvas');
   if (!canvas) return;
@@ -8,29 +11,85 @@ function startMinigame() {
   const height = canvas.height;
   
   // 游戏状态
-  const minigameState = {
+  minigameState = {
     petX: width / 2 - 25,
     petWidth: 50,
     petHeight: 20,
     food: [],
     score: 0,
     gameActive: true,
-    lastFrame: Date.now()
+    lastFrame: Date.now(),
+    animationFrameId: null,
+    gridCanvas: null
   };
   
   // 重置分数
   state.minigameScore = 0;
-  document.getElementById('minigame-score').textContent = `得分: ${state.minigameScore}`;
+  const scoreElement = document.getElementById('minigame-score');
+  if (scoreElement) {
+    scoreElement.textContent = `得分: ${state.minigameScore}`;
+  }
   
   // 键盘控制
   const keys = {};
   window.addEventListener('keydown', e => {
-    keys[e.key] = true;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      keys[e.key] = true;
+    }
   });
   
   window.addEventListener('keyup', e => {
-    keys[e.key] = false;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      keys[e.key] = false;
+    }
   });
+  
+  // 移动端触摸控制
+  let touchStartX = 0;
+  canvas.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    e.preventDefault();
+  });
+  
+  canvas.addEventListener('touchmove', e => {
+    const touchX = e.touches[0].clientX;
+    const diff = touchX - touchStartX;
+    
+    if (diff < -10) keys['ArrowLeft'] = true;
+    else if (diff > 10) keys['ArrowRight'] = true;
+    
+    e.preventDefault();
+  });
+  
+  canvas.addEventListener('touchend', () => {
+    keys['ArrowLeft'] = false;
+    keys['ArrowRight'] = false;
+  });
+  
+  // 创建离屏canvas用于网格背景
+  minigameState.gridCanvas = document.createElement('canvas');
+  minigameState.gridCanvas.width = width;
+  minigameState.gridCanvas.height = height;
+  const gridCtx = minigameState.gridCanvas.getContext('2d');
+  
+  // 绘制网格到离屏canvas
+  gridCtx.fillStyle = '#0f3460';
+  gridCtx.fillRect(0, 0, width, height);
+  
+  gridCtx.strokeStyle = 'rgba(0, 173, 181, 0.2)';
+  gridCtx.lineWidth = 1;
+  for (let x = 0; x <= width; x += 20) {
+    gridCtx.beginPath();
+    gridCtx.moveTo(x, 0);
+    gridCtx.lineTo(x, height);
+    gridCtx.stroke();
+  }
+  for (let y = 0; y <= height; y += 20) {
+    gridCtx.beginPath();
+    gridCtx.moveTo(0, y);
+    gridCtx.lineTo(width, y);
+    gridCtx.stroke();
+  }
   
   // 游戏循环
   function minigameLoop() {
@@ -41,25 +100,8 @@ function startMinigame() {
     // 清除画布
     ctx.clearRect(0, 0, width, height);
     
-    // 绘制背景
-    ctx.fillStyle = '#0f3460';
-    ctx.fillRect(0, 0, width, height);
-    
-    // 绘制网格
-    ctx.strokeStyle = 'rgba(0, 173, 181, 0.2)';
-    ctx.lineWidth = 1;
-    for (let x = 0; x <= width; x += 20) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
-      ctx.stroke();
-    }
-    for (let y = 0; y <= height; y += 20) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(width, y);
-      ctx.stroke();
-    }
+    // 绘制背景和网格
+    ctx.drawImage(minigameState.gridCanvas, 0, 0);
     
     // 移动宠物
     if (keys['ArrowLeft'] && minigameState.petX > 0) {
@@ -102,19 +144,21 @@ function startMinigame() {
         minigameState.food.splice(i, 1);
         minigameState.score++;
         state.minigameScore++;
-        document.getElementById('minigame-score').textContent = `得分: ${state.minigameScore}`;
+        
+        const scoreElement = document.getElementById('minigame-score');
+        if (scoreElement) {
+          scoreElement.textContent = `得分: ${state.minigameScore}`;
+        }
         
         // 小游戏成就
         if (minigameState.score >= 10 && !state.achievements.minigame) {
           state.achievements.minigame = true;
-          if (document.getElementById('ach-minigame')) {
-            document.getElementById('ach-minigame').classList.add('unlocked');
+          const achElement = document.getElementById('ach-minigame');
+          if (achElement) {
+            achElement.classList.add('unlocked');
           }
           showMessage('成就解锁：小游戏高手！', '#ffd700', 4000);
-          if (document.getElementById('achievements-count')) {
-            const unlocked = Object.values(state.achievements).filter(a => a).length;
-            document.getElementById('achievements-count').textContent = `${unlocked}/6`;
-          }
+          updateAchievementsCount();
         }
         continue;
       }
@@ -140,10 +184,19 @@ function startMinigame() {
     
     // 继续游戏
     if (minigameState.gameActive) {
-      requestAnimationFrame(minigameLoop);
+      minigameState.animationFrameId = requestAnimationFrame(minigameLoop);
     }
   }
   
   // 开始游戏
-  minigameLoop();
+  minigameState.animationFrameId = requestAnimationFrame(minigameLoop);
+}
+
+// 停止小游戏
+function stopMinigame() {
+  if (minigameState && minigameState.animationFrameId) {
+    cancelAnimationFrame(minigameState.animationFrameId);
+    minigameState.gameActive = false;
+    minigameState = null;
+  }
 }
