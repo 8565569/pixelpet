@@ -1,16 +1,24 @@
 <div id="minigame-page" class="page">
-  <div id="minigame-header">
-    <h2><i class="fas fa-gamepad"></i> 小游戏</h2>
-    <p>接住食物，获取分数</p>
-  </div>
-  
-  <canvas id="minigame-canvas" width="300" height="400"></canvas>
-  
-  <div id="minigame-score">得分: 0</div>
-  <div id="minigame-instruction">← → 键移动宠物接住食物</div>
-  
-  <div class="minigame-controls">
-    <button id="minigame-start"><i class="fas fa-play"></i> 开始游戏</button>
-    <button id="minigame-exit"><i class="fas fa-times"></i> 退出</button>
+  <div class="minigame-container">
+    <h2>接食物小游戏</h2>
+    <p>使用左右箭头键移动宠物，接住下落的食物！</p>
+    <p id="minigame-score">得分: 0</p>
+    
+    <canvas id="minigame-canvas" width="400" height="500"></canvas>
+    
+    <div class="minigame-controls">
+      <button id="minigame-start" class="btn-primary">开始游戏</button>
+      <button id="minigame-exit" class="btn-secondary">返回首页</button>
+    </div>
+    
+    <div class="instructions">
+      <h3>游戏说明:</h3>
+      <ul>
+        <li>← → : 左右移动宠物</li>
+        <li>接到食物 +1分</li>
+        <li>达到10分解锁成就</li>
+        <li>错过食物不扣分</li>
+      </ul>
+    </div>
   </div>
 </div>
