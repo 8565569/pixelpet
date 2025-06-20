@@ -58,148 +58,296 @@ function initGame() {
 
 // ===== 组件加载 =====
 function loadComponents() {
-  // 加载顶部栏
-  fetch('components/header.html')
-    .then(response => response.text())
-    .then(html => {
-      elements.topBar.innerHTML = html;
-      elements.connectWallet = document.getElementById('connect-wallet');
-      elements.walletInfo = document.getElementById('wallet-info');
-      elements.walletAddress = document.getElementById('wallet-address');
-      elements.walletBalance = document.getElementById('wallet-balance');
-      setupWalletEvents();
-    })
-    .catch(error => {
-      console.error('加载顶部栏失败:', error);
-      elements.topBar.innerHTML = '<div class="error">顶部栏加载失败</div>';
-    });
+  // 默认加载首页
+  loadPage('home-page');
   
-  // 加载底部导航
-  fetch('components/bottom-nav.html')
-    .then(response => response.text())
-    .then(html => {
-      elements.bottomNav.innerHTML = html;
-      setupNavigationEvents();
-      // 默认激活首页
-      const homeNav = document.querySelector('.nav-item[data-page="home-page"]');
-      if (homeNav) {
-        homeNav.classList.add('active');
-      }
-      loadPage('home-page');
-    })
-    .catch(error => {
-      console.error('加载底部导航失败:', error);
-      elements.bottomNav.innerHTML = '<div class="error">导航栏加载失败</div>';
-    });
+  // 设置导航事件
+  setupNavigationEvents();
 }
 
 // ===== 页面加载 =====
 function loadPage(pageId) {
   try {
     // 隐藏所有页面
-    document.querySelectorAll('.page').forEach(page => {
-      page.classList.remove('active');
-    });
+    const pages = document.querySelectorAll('.page');
+    if (pages.length > 0) {
+      pages.forEach(page => {
+        page.classList.remove('active');
+      });
+    }
     
     // 加载请求的页面
-    fetch(`components/${pageId}.html`)
-      .then(response => response.text())
-      .then(html => {
-        elements.appContainer.innerHTML = html;
-        const pageElement = document.getElementById(pageId);
-        if (pageElement) {
-          pageElement.classList.add('active');
-          
-          // 设置页面特定事件
-          setupPageEvents(pageId);
-          
-          // 更新UI
-          updateUI();
-        }
-      })
-      .catch(error => {
-        console.error(`加载页面 ${pageId} 失败:`, error);
-        elements.appContainer.innerHTML = `
-          <div class="error-page">
-            <h2>页面加载失败</h2>
-            <p>${error.message}</p>
-            <button onclick="loadPage('home-page')">返回首页</button>
-          </div>
-        `;
-      });
+    let pageContent = '';
+    
+    switch(pageId) {
+      case 'home-page':
+        pageContent = getHomePageContent();
+        break;
+      case 'achievements-page':
+        pageContent = getAchievementsPageContent();
+        break;
+      case 'minigame-page':
+        pageContent = getMinigamePageContent();
+        break;
+      case 'settings-page':
+        pageContent = getSettingsPageContent();
+        break;
+      default:
+        pageContent = getHomePageContent();
+    }
+    
+    elements.appContainer.innerHTML = `
+      <div id="${pageId}" class="page active">
+        ${pageContent}
+      </div>
+    `;
+    
+    // 设置页面特定事件
+    setupPageEvents(pageId);
+    
+    // 更新UI
+    updateUI();
   } catch (error) {
     console.error(`加载页面 ${pageId} 时出错:`, error);
+    elements.appContainer.innerHTML = `
+      <div class="error-page">
+        <h2>页面加载失败</h2>
+        <p>${error.message}</p>
+        <button onclick="loadPage('home-page')">返回首页</button>
+      </div>
+    `;
   }
+}
+
+// 获取首页内容
+function getHomePageContent() {
+  return `
+    <div class="pet-container">
+      <div id="pet-display">
+        <div id="pet" class="pet-normal float"></div>
+      </div>
+      <div id="status-message"></div>
+    </div>
+    
+    <div class="stats-container">
+      <div class="stat">
+        <label>饥饿度:</label>
+        <div class="progress-bar">
+          <div id="hunger-fill" class="progress-fill" style="width: ${state.hunger}%;"></div>
+          <span id="hunger-value">${Math.round(state.hunger)}%</span>
+        </div>
+      </div>
+      <div class="stat">
+        <label>快乐度:</label>
+        <div class="progress-bar">
+          <div id="happiness-fill" class="progress-fill" style="width: ${state.happiness}%;"></div>
+          <span id="happiness-value">${Math.round(state.happiness)}%</span>
+        </div>
+      </div>
+      <div class="stat">
+        <label>健康值:</label>
+        <div class="progress-bar">
+          <div id="health-fill" class="progress-fill" style="width: ${state.health}%;"></div>
+          <span id="health-value">${Math.round(state.health)}%</span>
+        </div>
+      </div>
+      <div class="stat">
+        <label>清洁度:</label>
+        <div class="progress-bar">
+          <div id="clean-fill" class="progress-fill" style="width: ${state.cleanliness}%;"></div>
+          <span id="clean-value">${Math.round(state.cleanliness)}%</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="actions">
+      <button id="feed-btn" class="action-btn">
+        <i class="fas fa-utensils"></i> 喂食
+      </button>
+      <button id="play-btn" class="action-btn">
+        <i class="fas fa-gamepad"></i> 玩耍
+      </button>
+      <button id="clean-btn" class="action-btn">
+        <i class="fas fa-bath"></i> 清洁
+      </button>
+      <button id="heal-btn" class="action-btn">
+        <i class="fas fa-heartbeat"></i> 治疗
+      </button>
+    </div>
+    
+    <div class="info-box">
+      <p>宠物状态: <span id="pet-status">${getPetStatus()}</span></p>
+      <p>游戏时间: <span id="time-value">${state.gameTime}</span> 分钟</p>
+    </div>
+  `;
+}
+
+// 获取成就页内容
+function getAchievementsPageContent() {
+  const unlocked = Object.values(state.achievements).filter(a => a).length;
+  
+  return `
+    <div class="page-content">
+      <h2>成就系统</h2>
+      <p>已解锁成就: <span id="achievements-count">${unlocked}/6</span></p>
+      
+      <div class="achievements-list">
+        <div class="achievement ${state.achievements.firstFeed ? 'unlocked' : 'locked'}" id="ach-first-feed">
+          <i class="fas ${state.achievements.firstFeed ? 'fa-check-circle' : 'fa-lock'}"></i>
+          <div>
+            <h3>第一次喂食</h3>
+            <p>第一次给宠物喂食</p>
+          </div>
+        </div>
+        
+        <div class="achievement ${state.achievements.firstPlay ? 'unlocked' : 'locked'}" id="ach-first-play">
+          <i class="fas ${state.achievements.firstPlay ? 'fa-check-circle' : 'fa-lock'}"></i>
+          <div>
+            <h3>第一次玩耍</h3>
+            <p>第一次和宠物玩耍</p>
+          </div>
+        </div>
+        
+        <div class="achievement ${state.achievements.fullHealth ? 'unlocked' : 'locked'}" id="ach-full-health">
+          <i class="fas ${state.achievements.fullHealth ? 'fa-check-circle' : 'fa-lock'}"></i>
+          <div>
+            <h3>完全健康</h3>
+            <p>将宠物健康值恢复到100%</p>
+          </div>
+        </div>
+        
+        <div class="achievement ${state.achievements.cleanMaster ? 'unlocked' : 'locked'}" id="ach-clean-master">
+          <i class="fas ${state.achievements.cleanMaster ? 'fa-check-circle' : 'fa-lock'}"></i>
+          <div>
+            <h3>清洁大师</h3>
+            <p>清理宠物的便便</p>
+          </div>
+        </div>
+        
+        <div class="achievement ${state.achievements.minigame ? 'unlocked' : 'locked'}" id="ach-minigame">
+          <i class="fas ${state.achievements.minigame ? 'fa-check-circle' : 'fa-lock'}"></i>
+          <div>
+            <h3>小游戏高手</h3>
+            <p>在小游戏中获得10分</p>
+          </div>
+        </div>
+        
+        <div class="achievement ${state.achievements.evolved ? 'unlocked' : 'locked'}" id="ach-evolved">
+          <i class="fas ${state.achievements.evolved ? 'fa-check-circle' : 'fa-lock'}"></i>
+          <div>
+            <h3>宠物进化</h3>
+            <p>宠物进化到高级形态</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// 获取小游戏页内容
+function getMinigamePageContent() {
+  return `
+    <div class="minigame-container">
+      <h2>接食物小游戏</h2>
+      <p>使用左右箭头键移动宠物，接住下落的食物！</p>
+      <p id="minigame-score">得分: ${state.minigameScore}</p>
+      
+      <canvas id="minigame-canvas" width="400" height="500"></canvas>
+      
+      <div class="minigame-controls">
+        <button id="minigame-start" class="btn-primary">开始游戏</button>
+        <button id="minigame-exit" class="btn-secondary">返回首页</button>
+      </div>
+      
+      <div class="instructions">
+        <h3>游戏说明:</h3>
+        <ul>
+          <li>← → : 左右移动宠物</li>
+          <li>接到食物 +1分</li>
+          <li>达到10分解锁成就</li>
+          <li>错过食物不扣分</li>
+        </ul>
+      </div>
+    </div>
+  `;
+}
+
+// 获取设置页内容
+function getSettingsPageContent() {
+  return `
+    <div class="settings-container">
+      <h2>游戏设置</h2>
+      
+      <div class="setting-group">
+        <h3>分享你的宠物</h3>
+        <div class="share-buttons">
+          <button id="share-facebook" class="share-btn">
+            <i class="fab fa-facebook"></i> Facebook
+          </button>
+          <button id="share-twitter" class="share-btn">
+            <i class="fab fa-twitter"></i> Twitter
+          </button>
+          <button id="share-whatsapp" class="share-btn">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+          </button>
+        </div>
+      </div>
+      
+      <div class="setting-group">
+        <h3>游戏数据</h3>
+        <button id="reset-game" class="btn-warning">
+          <i class="fas fa-trash-alt"></i> 重置游戏
+        </button>
+        <p class="warning">警告: 这将清除所有游戏数据！</p>
+      </div>
+      
+      <div class="setting-group">
+        <h3>关于游戏</h3>
+        <p>像素电子宠物 v1.0</p>
+        <p>开发团队: Pixel Pets</p>
+        <p>© 2023 版权所有</p>
+      </div>
+    </div>
+  `;
 }
 
 // ===== 设置事件监听器 =====
 function setupEventListeners() {
-  // 钱包事件在加载顶部栏后设置
-}
-
-function setupWalletEvents() {
-  if (!elements.connectWallet) return;
+  // 初始化钱包元素
+  elements.walletInfo = document.getElementById('wallet-info');
+  elements.walletAddress = document.getElementById('wallet-address');
+  elements.walletBalance = document.getElementById('wallet-balance');
+  elements.connectWallet = document.getElementById('connect-wallet');
   
-  elements.connectWallet.addEventListener('click', async () => {
-    if (state.walletConnected) {
-      disconnectWallet();
-      return;
-    }
-    
-    if (typeof window.ethereum === 'undefined') {
-      showMessage('请安装MetaMask钱包!', '#ff6b6b', 4000);
-      return;
-    }
-    
-    try {
-      // 请求账户访问
-      const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-      state.walletAddress = accounts[0];
-      
-      // 切换到BSC链
-      await switchToBSC();
-      
-      // 获取余额
-      await getWalletBalance();
-      
-      // 更新UI
-      state.walletConnected = true;
-      updateWalletUI();
-      showMessage('钱包已连接!', '#80ed99', 3000);
-      
-      // 保存连接状态
-      localStorage.setItem('walletConnected', 'true');
-      localStorage.setItem('walletAddress', state.walletAddress);
-    } catch (error) {
-      console.error('钱包连接失败:', error);
-      showMessage('钱包连接失败: ' + error.message, '#ff6b6b', 4000);
-    }
-  });
+  // 设置钱包事件
+  if (elements.connectWallet) {
+    elements.connectWallet.addEventListener('click', handleWalletConnect);
+  }
 }
 
 function setupNavigationEvents() {
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', function() {
-      // 更新导航状态
-      document.querySelectorAll('.nav-item').forEach(nav => {
-        nav.classList.remove('active');
+  const navItems = document.querySelectorAll('.nav-item');
+  if (navItems.length > 0) {
+    navItems.forEach(item => {
+      item.addEventListener('click', function() {
+        // 更新导航状态
+        navItems.forEach(nav => {
+          nav.classList.remove('active');
+        });
+        this.classList.add('active');
+        
+        // 加载对应页面
+        const pageId = this.getAttribute('data-page');
+        loadPage(pageId);
       });
-      this.classList.add('active');
-      
-      // 加载对应页面
-      const pageId = this.getAttribute('data-page');
-      loadPage(pageId);
     });
-  });
+  }
 }
 
 function setupPageEvents(pageId) {
   switch(pageId) {
     case 'home-page':
       setupHomeEvents();
-      break;
-    case 'achievements-page':
-      setupAchievementsEvents();
       break;
     case 'minigame-page':
       setupMinigameEvents();
@@ -229,10 +377,6 @@ function setupHomeEvents() {
   if (healBtn) healBtn.addEventListener('click', healPet);
 }
 
-function setupAchievementsEvents() {
-  // 成就页不需要额外事件
-}
-
 function setupMinigameEvents() {
   const startBtn = document.getElementById('minigame-start');
   if (startBtn) startBtn.addEventListener('click', startMinigame);
@@ -241,7 +385,13 @@ function setupMinigameEvents() {
   if (exitBtn) {
     exitBtn.addEventListener('click', () => {
       stopMinigame();
-      document.querySelector('.nav-item[data-page="home-page"]')?.click();
+      document.querySelector('.nav-item[data-page="home-page"]').classList.add('active');
+      document.querySelectorAll('.nav-item').forEach(item => {
+        if (item.getAttribute('data-page') !== 'home-page') {
+          item.classList.remove('active');
+        }
+      });
+      loadPage('home-page');
     });
   }
 }
@@ -255,6 +405,45 @@ function setupSettingsEvents() {
   
   const waBtn = document.getElementById('share-whatsapp');
   if (waBtn) waBtn.addEventListener('click', () => sharePet('WhatsApp'));
+  
+  const resetBtn = document.getElementById('reset-game');
+  if (resetBtn) resetBtn.addEventListener('click', resetGame);
+}
+
+async function handleWalletConnect() {
+  if (state.walletConnected) {
+    disconnectWallet();
+    return;
+  }
+  
+  if (typeof window.ethereum === 'undefined') {
+    showMessage('请安装MetaMask钱包!', '#ff6b6b', 4000);
+    return;
+  }
+  
+  try {
+    // 请求账户访问
+    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+    state.walletAddress = accounts[0];
+    
+    // 切换到BSC链
+    await switchToBSC();
+    
+    // 获取余额
+    await getWalletBalance();
+    
+    // 更新UI
+    state.walletConnected = true;
+    updateWalletUI();
+    showMessage('钱包已连接!', '#80ed99', 3000);
+    
+    // 保存连接状态
+    localStorage.setItem('walletConnected', 'true');
+    localStorage.setItem('walletAddress', state.walletAddress);
+  } catch (error) {
+    console.error('钱包连接失败:', error);
+    showMessage('钱包连接失败: ' + error.message, '#ff6b6b', 4000);
+  }
 }
 
 // ===== 宠物交互功能 =====
@@ -266,8 +455,6 @@ function feedPet() {
   // 第一次喂食成就
   if (!state.achievements.firstFeed) {
     state.achievements.firstFeed = true;
-    const achElement = document.getElementById('ach-first-feed');
-    if (achElement) achElement.classList.add('unlocked');
     showMessage('成就解锁：第一次喂食！', '#ffd700', 4000);
     updateAchievementsCount();
   }
@@ -298,8 +485,6 @@ function playWithPet() {
   // 第一次玩耍成就
   if (!state.achievements.firstPlay) {
     state.achievements.firstPlay = true;
-    const achElement = document.getElementById('ach-first-play');
-    if (achElement) achElement.classList.add('unlocked');
     showMessage('成就解锁：第一次玩耍！', '#ffd700', 4000);
     updateAchievementsCount();
   }
@@ -330,8 +515,6 @@ function cleanPet() {
   // 清洁大师成就
   if (state.achievements.cleanMaster === false) {
     state.achievements.cleanMaster = true;
-    const achElement = document.getElementById('ach-clean-master');
-    if (achElement) achElement.classList.add('unlocked');
     showMessage('成就解锁：清洁大师！', '#ffd700', 4000);
     updateAchievementsCount();
   }
@@ -355,8 +538,6 @@ function healPet() {
   // 完全健康成就
   if (state.health >= 100 && !state.achievements.fullHealth) {
     state.achievements.fullHealth = true;
-    const achElement = document.getElementById('ach-full-health');
-    if (achElement) achElement.classList.add('unlocked');
     showMessage('成就解锁：完全健康！', '#ffd700', 4000);
     updateAchievementsCount();
   }
@@ -434,6 +615,9 @@ function updateUI() {
   
   // 保存游戏状态
   saveGame();
+  
+  // 更新钱包UI
+  updateWalletUI();
 }
 
 function updatePetAppearance() {
@@ -452,10 +636,6 @@ function updatePetAppearance() {
       pet.classList.add('pet-evolved');
       state.petState = 'evolved';
       state.achievements.evolved = true;
-      const achElement = document.getElementById('ach-evolved');
-      if (achElement) {
-        achElement.classList.add('unlocked');
-      }
       showMessage('宠物进化了！', '#ffd700', 5000);
       updateAchievementsCount();
     } else if (state.gameTime > 20) {
@@ -554,6 +734,43 @@ function loadGame() {
   }
 }
 
+function resetGame() {
+  if (confirm('确定要重置游戏吗？所有进度将被清除！')) {
+    localStorage.removeItem('pixelPetGame');
+    localStorage.removeItem('walletConnected');
+    localStorage.removeItem('walletAddress');
+    localStorage.removeItem('walletBalance');
+    
+    // 重置状态
+    Object.assign(state, {
+      hunger: 70,
+      happiness: 85,
+      health: 100,
+      cleanliness: 60,
+      isSick: false,
+      poopCount: 0,
+      petState: 'normal',
+      achievements: {
+        firstFeed: false,
+        firstPlay: false,
+        fullHealth: false,
+        cleanMaster: false,
+        minigame: false,
+        evolved: false
+      },
+      gameTime: 0,
+      minigameScore: 0,
+      walletConnected: false,
+      walletAddress: '',
+      walletBalance: 0
+    });
+    
+    // 重新加载首页
+    loadPage('home-page');
+    showMessage('游戏已重置！', '#00adb5', 3000);
+  }
+}
+
 // ===== 钱包功能 =====
 async function switchToBSC() {
   const chainId = '0x38'; // BSC主网链ID
@@ -605,17 +822,11 @@ async function getWalletBalance() {
     
     // 将余额从wei转换为BNB
     state.walletBalance = parseInt(balance) / 1e18;
-    if (elements.walletBalance) {
-      elements.walletBalance.textContent = `余额: ${state.walletBalance.toFixed(4)} BNB`;
-    }
     
     // 保存余额
     localStorage.setItem('walletBalance', state.walletBalance.toString());
   } catch (error) {
     console.error('获取余额失败:', error);
-    if (elements.walletBalance) {
-      elements.walletBalance.textContent = '余额: 获取失败';
-    }
   }
 }
 
