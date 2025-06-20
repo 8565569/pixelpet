@@ -9,7 +9,21 @@
 </head>
 <body>
   <!-- 顶部栏 -->
-  <div id="top-bar"></div>
+  <div id="top-bar">
+    <div id="header-content">
+      <h1 id="game-title">像素电子宠物</h1>
+      <div id="wallet-section">
+        <div id="wallet-info">
+          <div id="wallet-address"></div>
+          <div id="wallet-balance"></div>
+        </div>
+        <button id="connect-wallet">
+          <i class="fas fa-wallet"></i>
+          连接钱包
+        </button>
+      </div>
+    </div>
+  </div>
   
   <!-- 主内容区 -->
   <div id="app-container">
@@ -17,9 +31,27 @@
   </div>
   
   <!-- 底部导航 -->
-  <div id="bottom-nav"></div>
+  <div id="bottom-nav">
+    <div class="nav-container">
+      <div class="nav-item" data-page="home-page">
+        <i class="fas fa-home"></i>
+        <span>首页</span>
+      </div>
+      <div class="nav-item" data-page="achievements-page">
+        <i class="fas fa-trophy"></i>
+        <span>成就</span>
+      </div>
+      <div class="nav-item" data-page="minigame-page">
+        <i class="fas fa-gamepad"></i>
+        <span>小游戏</span>
+      </div>
+      <div class="nav-item" data-page="settings-page">
+        <i class="fas fa-cog"></i>
+        <span>设置</span>
+      </div>
+    </div>
+  </div>
 
-  <!-- 调整脚本加载顺序 -->
   <script src="script.js"></script>
   <script src="minigame.js"></script>
 </body>
