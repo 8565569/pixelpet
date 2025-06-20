@@ -153,10 +153,6 @@ function startMinigame() {
         // 小游戏成就
         if (minigameState.score >= 10 && !state.achievements.minigame) {
           state.achievements.minigame = true;
-          const achElement = document.getElementById('ach-minigame');
-          if (achElement) {
-            achElement.classList.add('unlocked');
-          }
           showMessage('成就解锁：小游戏高手！', '#ffd700', 4000);
           updateAchievementsCount();
         }
