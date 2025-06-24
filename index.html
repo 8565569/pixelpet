@@ -1,58 +1,669 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>像素宠物</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>像素风宠物养成小游戏</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Press Start 2P', cursive;
+            image-rendering: pixelated;
+        }
+        
+        body {
+            background: #1a1b26;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+        
+        .game-container {
+            width: 100%;
+            max-width: 800px;
+            background: #2a2b36;
+            border: 4px solid #565f89;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+            position: relative;
+            padding: 20px;
+        }
+        
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #565f89;
+        }
+        
+        .game-title {
+            font-size: 24px;
+            color: #7aa2f7;
+            text-shadow: 3px 3px 0 #24283b;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        
+        .pet-selection {
+            background: #24283b;
+            padding: 15px;
+            border: 3px solid #565f89;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            color: #bb9af7;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .pets-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .pet-option {
+            cursor: pointer;
+            border: 3px solid #565f89;
+            padding: 10px;
+            background: #1a1b26;
+            transition: all 0.2s;
+        }
+        
+        .pet-option.selected {
+            border-color: #7aa2f7;
+            background: #2a2b36;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 0 #1a1b26;
+        }
+        
+        .pet-name {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #9aa5ce;
+        }
+        
+        /* 像素宠物样式 */
+        .pixel-pet {
+            width: 80px;
+            height: 80px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 2px;
+        }
+        
+        .pixel {
+            width: 100%;
+            height: 100%;
+            border-radius: 2px;
+        }
+        
+        /* 不同宠物的像素图案 */
+        .pet1 .pixel:nth-child(1) { background: transparent; }
+        .pet1 .pixel:nth-child(2) { background: #f7768e; }
+        .pet1 .pixel:nth-child(3) { background: #f7768e; }
+        .pet1 .pixel:nth-child(4) { background: transparent; }
+        .pet1 .pixel:nth-child(5) { background: #f7768e; }
+        .pet1 .pixel:nth-child(6) { background: #ff9e64; }
+        .pet1 .pixel:nth-child(7) { background: #ff9e64; }
+        .pet1 .pixel:nth-child(8) { background: #f7768e; }
+        .pet1 .pixel:nth-child(9) { background: #f7768e; }
+        .pet1 .pixel:nth-child(10) { background: #ff9e64; }
+        .pet1 .pixel:nth-child(11) { background: #ff9e64; }
+        .pet1 .pixel:nth-child(12) { background: #f7768e; }
+        .pet1 .pixel:nth-child(13) { background: #f7768e; }
+        .pet1 .pixel:nth-child(14) { background: #f7768e; }
+        .pet1 .pixel:nth-child(15) { background: #f7768e; }
+        .pet1 .pixel:nth-child(16) { background: transparent; }
+        
+        .pet2 .pixel:nth-child(1) { background: transparent; }
+        .pet2 .pixel:nth-child(2) { background: #9ece6a; }
+        .pet2 .pixel:nth-child(3) { background: #9ece6a; }
+        .pet2 .pixel:nth-child(4) { background: transparent; }
+        .pet2 .pixel:nth-child(5) { background: #9ece6a; }
+        .pet2 .pixel:nth-child(6) { background: #73daca; }
+        .pet2 .pixel:nth-child(7) { background: #73daca; }
+        .pet2 .pixel:nth-child(8) { background: #9ece6a; }
+        .pet2 .pixel:nth-child(9) { background: #9ece6a; }
+        .pet2 .pixel:nth-child(10) { background: #73daca; }
+        .pet2 .pixel:nth-child(11) { background: #73daca; }
+        .pet2 .pixel:nth-child(12) { background: #9ece6a; }
+        .pet2 .pixel:nth-child(13) { background: #9ece6a; }
+        .pet2 .pixel:nth-child(14) { background: #9ece6a; }
+        .pet2 .pixel:nth-child(15) { background: #9ece6a; }
+        .pet2 .pixel:nth-child(16) { background: transparent; }
+        
+        .pet3 .pixel:nth-child(1) { background: transparent; }
+        .pet3 .pixel:nth-child(2) { background: #e0af68; }
+        .pet3 .pixel:nth-child(3) { background: #e0af68; }
+        .pet3 .pixel:nth-child(4) { background: transparent; }
+        .pet3 .pixel:nth-child(5) { background: #e0af68; }
+        .pet3 .pixel:nth-child(6) { background: #ff9e64; }
+        .pet3 .pixel:nth-child(7) { background: #ff9e64; }
+        .pet3 .pixel:nth-child(8) { background: #e0af68; }
+        .pet3 .pixel:nth-child(9) { background: #e0af68; }
+        .pet3 .pixel:nth-child(10) { background: #ff9e64; }
+        .pet3 .pixel:nth-child(11) { background: #ff9e64; }
+        .pet3 .pixel:nth-child(12) { background: #e0af68; }
+        .pet3 .pixel:nth-child(13) { background: #e0af68; }
+        .pet3 .pixel:nth-child(14) { background: #e0af68; }
+        .pet3 .pixel:nth-child(15) { background: #e0af68; }
+        .pet3 .pixel:nth-child(16) { background: transparent; }
+        
+        .pet4 .pixel:nth-child(1) { background: transparent; }
+        .pet4 .pixel:nth-child(2) { background: #7aa2f7; }
+        .pet4 .pixel:nth-child(3) { background: #7aa2f7; }
+        .pet4 .pixel:nth-child(4) { background: transparent; }
+        .pet4 .pixel:nth-child(5) { background: #7aa2f7; }
+        .pet4 .pixel:nth-child(6) { background: #bb9af7; }
+        .pet4 .pixel:nth-child(7) { background: #bb9af7; }
+        .pet4 .pixel:nth-child(8) { background: #7aa2f7; }
+        .pet4 .pixel:nth-child(9) { background: #7aa2f7; }
+        .pet4 .pixel:nth-child(10) { background: #bb9af7; }
+        .pet4 .pixel:nth-child(11) { background: #bb9af7; }
+        .pet4 .pixel:nth-child(12) { background: #7aa2f7; }
+        .pet4 .pixel:nth-child(13) { background: #7aa2f7; }
+        .pet4 .pixel:nth-child(14) { background: #7aa2f7; }
+        .pet4 .pixel:nth-child(15) { background: #7aa2f7; }
+        .pet4 .pixel:nth-child(16) { background: transparent; }
+        
+        .pet-status {
+            display: flex;
+            justify-content: space-around;
+            background: #24283b;
+            padding: 15px;
+            border: 3px solid #565f89;
+            margin-bottom: 20px;
+        }
+        
+        .status-item {
+            text-align: center;
+        }
+        
+        .status-title {
+            font-size: 12px;
+            color: #9aa5ce;
+            margin-bottom: 8px;
+        }
+        
+        .status-value {
+            font-size: 18px;
+            color: #7dcfff;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 5px;
+            border-bottom: 3px solid #565f89;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #24283b;
+            border: 3px solid #565f89;
+            border-bottom: none;
+            position: relative;
+            top: 3px;
+            font-size: 12px;
+            color: #9aa5ce;
+        }
+        
+        .tab.active {
+            background: #1a1b26;
+            color: #7aa2f7;
+            border-color: #565f89;
+            border-bottom: 3px solid #1a1b26;
+            margin-bottom: -3px;
+        }
+        
+        .content-area {
+            background: #1a1b26;
+            border: 3px solid #565f89;
+            min-height: 300px;
+            padding: 15px;
+        }
+        
+        #chatArea {
+            display: flex;
+            flex-direction: column;
+            height: 300px;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            border: 2px solid #565f89;
+            padding: 10px;
+            background: #16161e;
+        }
+        
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        
+        .user-message {
+            background: #2a2b36;
+            border-left: 3px solid #7aa2f7;
+        }
+        
+        .pet-message {
+            background: #2a2b36;
+            border-left: 3px solid #f7768e;
+        }
+        
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+        
+        #messageInput {
+            flex: 1;
+            background: #24283b;
+            border: 3px solid #565f89;
+            padding: 10px;
+            color: #e0e0e0;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+        }
+        
+        #sendButton {
+            background: #7aa2f7;
+            border: 3px solid #565f89;
+            color: #1a1b26;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+        }
+        
+        #sendButton:hover {
+            background: #9aa5ce;
+        }
+        
+        #logArea {
+            display: none;
+            height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            padding: 8px 0;
+            border-bottom: 1px solid #565f89;
+            color: #9aa5ce;
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .log-timestamp {
+            color: #bb9af7;
+            margin-right: 10px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            padding: 10px 15px;
+            background: #24283b;
+            border: 3px solid #565f89;
+            color: #9aa5ce;
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+        }
+        
+        .action-btn:hover {
+            background: #2a2b36;
+            color: #7aa2f7;
+        }
+        
+        .game-footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 3px solid #565f89;
+            font-size: 10px;
+            color: #565f89;
+        }
+        
+        /* 像素动画 */
+        @keyframes pixel-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .pet-option:hover .pixel-pet {
+            animation: pixel-bounce 0.5s ease infinite;
+        }
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1a1b26;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #565f89;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7aa2f7;
+        }
+    </style>
 </head>
 <body>
-  <!-- 顶部栏 -->
-  <div id="top-bar">
-    <div id="header-content">
-      <h1 id="game-title">像素电子宠物</h1>
-      <div id="wallet-section">
-        <div id="wallet-info">
-          <div id="wallet-address"></div>
-          <div id="wallet-balance"></div>
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">像素宠物养成</h1>
+            <p>选择你的宠物伙伴，与它一起成长！</p>
         </div>
-        <button id="connect-wallet">
-          <i class="fas fa-wallet"></i>
-          连接钱包
-        </button>
-      </div>
+        
+        <div class="pet-selection">
+            <div class="section-title">选择你的宠物</div>
+            <div class="pets-container">
+                <div class="pet-option selected" data-pet="1">
+                    <div class="pixel-pet pet1">
+                        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+                        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+                        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+                        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+                    </div>
+                    <div class="pet-name">火火</div>
+                </div>
+                
+                <div class="pet-option" data-pet="2">
+                    <div class="pixel-pet pet2">
+                        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+                        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+                        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+                        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+                    </div>
+                    <div class="pet-name">叶叶</div>
+                </div>
+                
+                <div class="pet-option" data-pet="3">
+                    <div class="pixel-pet pet3">
+                        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+                        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+                        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+                        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+                    </div>
+                    <div class="pet-name">金金</div>
+                </div>
+                
+                <div class="pet-option" data-pet="4">
+                    <div class="pixel-pet pet4">
+                        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+                        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+                        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+                        <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
+                    </div>
+                    <div class="pet-name">水水</div>
+                </div>
+            </div>
+            
+            <div class="selected-pet">
+                <div class="pet-name">当前宠物: <span id="currentPetName">火火</span></div>
+            </div>
+        </div>
+        
+        <div class="pet-status">
+            <div class="status-item">
+                <div class="status-title">心情值</div>
+                <div class="status-value">❤️❤️❤️❤️</div>
+            </div>
+            <div class="status-item">
+                <div class="status-title">饥饿度</div>
+                <div class="status-value">🍗🍗🍗</div>
+            </div>
+            <div class="status-item">
+                <div class="status-title">亲密度</div>
+                <div class="status-value">📈 75%</div>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="chat">与宠物对话</div>
+            <div class="tab" data-tab="log">操作记录</div>
+        </div>
+        
+        <div class="content-area">
+            <div id="chatArea">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message pet-message">
+                        你好主人！我是火火，一只像素小宠物！你可以和我聊天或者照顾我。
+                    </div>
+                    <div class="message pet-message">
+                        点击下面的按钮可以喂食、玩耍或者清理。也可以直接和我对话哦！
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="输入你想说的话...">
+                    <button id="sendButton">发送</button>
+                </div>
+            </div>
+            
+            <div id="logArea">
+                <div class="log-entry">
+                    <span class="log-timestamp">[10:00]</span> 系统: 欢迎来到像素宠物养成游戏！
+                </div>
+                <div class="log-entry">
+                    <span class="log-timestamp">[10:01]</span> 你选择了火火作为宠物
+                </div>
+                <div class="log-entry">
+                    <span class="log-timestamp">[10:02]</span> 宠物: 你好主人！我是火火，一只像素小宠物！
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="action-btn" id="feedBtn">喂食</button>
+            <button class="action-btn" id="playBtn">玩耍</button>
+            <button class="action-btn" id="cleanBtn">清理</button>
+            <button class="action-btn" id="healBtn">治疗</button>
+        </div>
+        
+        <div class="game-footer">
+            <p>使用方向键移动宠物 | 按空格键互动 | ESC打开菜单</p>
+            <p>像素宠物养成 v1.0</p>
+        </div>
     </div>
-  </div>
-  
-  <!-- 主内容区 -->
-  <div id="app-container">
-    <!-- 页面内容将通过JS动态加载 -->
-  </div>
-  
-  <!-- 底部导航 -->
-  <div id="bottom-nav">
-    <div class="nav-container">
-      <div class="nav-item" data-page="home-page">
-        <i class="fas fa-home"></i>
-        <span>首页</span>
-      </div>
-      <div class="nav-item" data-page="achievements-page">
-        <i class="fas fa-trophy"></i>
-        <span>成就</span>
-      </div>
-      <div class="nav-item" data-page="minigame-page">
-        <i class="fas fa-gamepad"></i>
-        <span>小游戏</span>
-      </div>
-      <div class="nav-item" data-page="settings-page">
-        <i class="fas fa-cog"></i>
-        <span>设置</span>
-      </div>
-    </div>
-  </div>
 
-  <script src="script.js"></script>
-  <script src="minigame.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            const petOptions = document.querySelectorAll('.pet-option');
+            const currentPetName = document.getElementById('currentPetName');
+            const chatMessages = document.getElementById('chatMessages');
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const tabs = document.querySelectorAll('.tab');
+            const chatArea = document.getElementById('chatArea');
+            const logArea = document.getElementById('logArea');
+            const logEntries = document.getElementById('logArea');
+            const actionButtons = document.querySelectorAll('.action-btn');
+            
+            // 当前选中的宠物
+            let currentPet = '火火';
+            
+            // 宠物选择
+            petOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // 移除之前选中的样式
+                    petOptions.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // 添加当前选中样式
+                    this.classList.add('selected');
+                    
+                    // 更新当前宠物名称
+                    currentPet = this.querySelector('.pet-name').textContent;
+                    currentPetName.textContent = currentPet;
+                    
+                    // 添加系统消息
+                    addPetMessage(`你好主人！我是${currentPet}，很高兴见到你！`);
+                    addLogEntry(`你选择了${currentPet}作为宠物`);
+                });
+            });
+            
+            // 标签页切换
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有活动标签
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // 添加当前活动标签
+                    this.classList.add('active');
+                    
+                    // 显示对应内容
+                    const tabName = this.getAttribute('data-tab');
+                    if (tabName === 'chat') {
+                        chatArea.style.display = 'flex';
+                        logArea.style.display = 'none';
+                    } else {
+                        chatArea.style.display = 'none';
+                        logArea.style.display = 'block';
+                    }
+                });
+            });
+            
+            // 发送消息
+            sendButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message) {
+                    // 添加用户消息
+                    addUserMessage(message);
+                    
+                    // 生成宠物回复
+                    setTimeout(() => {
+                        generatePetReply(message);
+                    }, 1000);
+                    
+                    // 添加到日志
+                    addLogEntry(`你对${currentPet}说: ${message}`);
+                    
+                    // 清空输入框
+                    messageInput.value = '';
+                }
+            }
+            
+            // 添加用户消息
+            function addUserMessage(text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message user-message';
+                messageDiv.textContent = `你: ${text}`;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // 添加宠物消息
+            function addPetMessage(text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message pet-message';
+                messageDiv.textContent = `${currentPet}: ${text}`;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // 添加到日志
+            function addLogEntry(text) {
+                const now = new Date();
+                const timeString = `[${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}]`;
+                
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.innerHTML = `<span class="log-timestamp">${timeString}</span> ${text}`;
+                logEntries.appendChild(logEntry);
+                logEntries.scrollTop = logEntries.scrollHeight;
+            }
+            
+            // 生成宠物回复
+            function generatePetReply(userMessage) {
+                const replies = [
+                    `哦？${userMessage}？这很有趣！`,
+                    `作为一只像素宠物，我不太明白"${userMessage}"的意思...`,
+                    `哈哈，${userMessage}？这让我很开心！`,
+                    `主人，你提到的"${userMessage}"让我很感兴趣！`,
+                    `嗯...${userMessage}？这是个有趣的话题！`,
+                    `关于"${userMessage}"，我有一个小故事想分享给你听...`,
+                    `作为${currentPet}，我对"${userMessage}"有特别的感受！`,
+                    `"${userMessage}"？我更喜欢和你一起玩游戏！`,
+                    `我只是一只小宠物，不太懂"${userMessage}"的意思...`,
+                    `这个话题让我想起上次我们玩耍的时光！`
+                ];
+                
+                const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                addPetMessage(randomReply);
+                addLogEntry(`${currentPet}回复: ${randomReply}`);
+            }
+            
+            // 操作按钮事件
+            actionButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const action = this.id.replace('Btn', '');
+                    let actionText = '';
+                    
+                    switch(action) {
+                        case 'feed':
+                            actionText = `你喂了${currentPet}一些食物`;
+                            addPetMessage("谢谢主人的食物！真好吃！");
+                            break;
+                        case 'play':
+                            actionText = `你和${currentPet}一起玩耍`;
+                            addPetMessage("太好玩了！主人最棒了！");
+                            break;
+                        case 'clean':
+                            actionText = `你为${currentPet}清理了环境`;
+                            addPetMessage("感觉清爽多了，谢谢主人！");
+                            break;
+                        case 'heal':
+                            actionText = `你治疗了${currentPet}`;
+                            addPetMessage("感觉好多了，谢谢主人照顾！");
+                            break;
+                    }
+                    
+                    addLogEntry(actionText);
+                });
+            });
+            
+            // 添加初始日志
+            addLogEntry("系统: 欢迎来到像素宠物养成游戏！");
+            addLogEntry(`你选择了${currentPet}作为宠物`);
+        });
+    </script>
 </body>
 </html>
