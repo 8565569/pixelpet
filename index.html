@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PixelPets</title>
+    <title>像素宠物乐园</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -851,8 +851,8 @@
         <div class="pixel-border"></div>
         
         <div class="game-header">
-            <h1 class="game-title">PixelPet</h1>
-            <div class="subtitle">Take Care of Your Animal Friends</div>
+            <h1 class="game-title">像素宠物乐园</h1>
+            <div class="subtitle">照顾你的专属像素宠物伙伴！</div>
             
             <div class="wallet-section">
                 <div class="coins">
@@ -872,7 +872,7 @@
                     <button class="nav-btn prev-btn">
                         <i class="fas fa-chevron-left"></i>
                     </button>
-                    <img id="petImage" class="pet-image" src="https://cdn.pixabay.com/photo/2019/08/19/07/45/pets-4415649_1280.png" alt="像素宠物">
+                    <img id="petImage" class="pet-image" src="image/chicken.png" alt="像素宠物">
                     <button class="nav-btn next-btn">
                         <i class="fas fa-chevron-right"></i>
                     </button>
@@ -1207,10 +1207,10 @@
         document.addEventListener('DOMContentLoaded', function() {
             // 宠物图片数据
             const pets = [
-                { name: "像素小黄鸡", image: "https://cdn.pixabay.com/photo/2019/08/19/07/45/pets-4415649_1280.png" },
-                { name: "像素猫咪", image: "https://cdn.pixabay.com/photo/2021/07/13/11/34/cat-6463284_1280.png" },
-                { name: "像素小狗", image: "https://cdn.pixabay.com/photo/2023/01/25/19/12/dog-7744036_1280.png" },
-                { name: "像素小龙", image: "https://cdn.pixabay.com/photo/2012/04/13/20/40/dragon-33637_1280.png" }
+                { name: "像素小黄鸡", image: "image/chicken.png" },
+                { name: "像素猫咪", image: "image/cat.png" },
+                { name: "像素小狗", image: "image/dog.png" },
+                { name: "像素小龙", image: "image/dragon.png" }
             ];
             
             let currentPetIndex = 0;
