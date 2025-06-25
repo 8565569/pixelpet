@@ -47,6 +47,9 @@
             color: white;
             position: relative;
             border-bottom: 3px solid #ffd54f;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         
         .game-title {
@@ -60,6 +63,51 @@
         .subtitle {
             font-size: 0.7rem;
             color: #e8f5e9;
+        }
+        
+        /* 钱包连接按钮 */
+        .wallet-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 30px;
+            margin-top: 5px;
+        }
+        
+        .coins {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            color: #ffd54f;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 5px 10px;
+            border-radius: 15px;
+        }
+        
+        .connect-btn {
+            background: #ffd54f;
+            color: #2e7d32;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem;
+            transition: all 0.3s;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+        }
+        
+        .connect-btn:hover {
+            background: #ffc107;
+            transform: translateY(-2px);
+        }
+        
+        .connected {
+            background: #81c784;
+            color: white;
         }
         
         /* 页面容器 */
@@ -88,32 +136,66 @@
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             border: 3px solid #a5d6a7;
+            position: relative;
         }
         
-        .current-pet {
-            width: 120px;
-            height: 120px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(4, 1fr);
-            gap: 2px;
+        .pet-image-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .pet-image {
+            max-width: 100%;
+            max-height: 100%;
             border: 3px solid #ffd54f;
-            padding: 10px;
-            background: #fff;
             border-radius: 8px;
+            background: #fff;
+            padding: 10px;
             box-shadow: 0 5px 15px rgba(255, 213, 79, 0.2);
         }
         
-        .pet-pixel {
-            width: 100%;
-            height: 100%;
-            border-radius: 4px;
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #4db6ac;
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            z-index: 10;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: #26a69a;
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .prev-btn {
+            left: 5px;
+        }
+        
+        .next-btn {
+            right: 5px;
         }
         
         .pet-name {
             font-size: 1.4rem;
             color: #2e7d32;
             font-weight: bold;
+            margin-top: 10px;
         }
         
         /* 宠物状态 */
@@ -682,6 +764,86 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #26a69a;
         }
+        
+        /* 钱包弹窗 */
+        .wallet-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 4px solid #4db6ac;
+        }
+        
+        .modal-title {
+            font-size: 1.2rem;
+            color: #2e7d32;
+            margin-bottom: 20px;
+        }
+        
+        .wallet-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .wallet-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #b2dfdb;
+        }
+        
+        .wallet-option:hover {
+            background: #c8e6c9;
+            transform: translateY(-3px);
+        }
+        
+        .wallet-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            color: #4db6ac;
+        }
+        
+        .wallet-name {
+            font-size: 0.9rem;
+            color: #2e7d32;
+            text-align: left;
+            flex: 1;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #f44336;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -691,30 +853,31 @@
         <div class="game-header">
             <h1 class="game-title">像素宠物乐园</h1>
             <div class="subtitle">照顾你的专属像素宠物伙伴！</div>
+            
+            <div class="wallet-section">
+                <div class="coins">
+                    <i class="fas fa-coins"></i>
+                    <span id="coinAmount">0 BNB</span>
+                </div>
+                <button id="connectWallet" class="connect-btn">
+                    <i class="fas fa-wallet"></i> 连接钱包
+                </button>
+            </div>
         </div>
         
         <!-- 养宠物页面 -->
         <div id="petPage" class="page-container active">
             <div class="pet-display-container">
-                <div class="pet-name">小黄鸡</div>
-                <div class="current-pet">
-                    <div class="pet-pixel" style="background-color: #FFEC8B;"></div>
-                    <div class="pet-pixel" style="background-color: #FFEC8B;"></div>
-                    <div class="pet-pixel" style="background-color: #FFB74D;"></div>
-                    <div class="pet-pixel" style="background-color: #FFEC8B;"></div>
-                    <div class="pet-pixel" style="background-color: #FFEC8B;"></div>
-                    <div class="pet-pixel" style="background-color: #FFEC8B;"></div>
-                    <div class="pet-pixel" style="background-color: #FFEC8B;"></div>
-                    <div class="pet-pixel" style="background-color: #FFEC8B;"></div>
-                    <div class="pet-pixel" style="background-color: #FFEC8B;"></div>
-                    <div class="pet-pixel" style="background-color: #FFB74D;"></div>
-                    <div class="pet-pixel" style="background-color: #FFEC8B;"></div>
-                    <div class="pet-pixel" style="background-color: #FFEC8B;"></div>
-                    <div class="pet-pixel" style="background-color: #FFEC8B;"></div>
-                    <div class="pet-pixel" style="background-color: #FFEC8B;"></div>
-                    <div class="pet-pixel" style="background-color: #FFEC8B;"></div>
-                    <div class="pet-pixel" style="background-color: #FFEC8B;"></div>
+                <div class="pet-image-container">
+                    <button class="nav-btn prev-btn">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <img id="petImage" class="pet-image" src="https://cdn.pixabay.com/photo/2019/08/19/07/45/pets-4415649_1280.png" alt="像素宠物">
+                    <button class="nav-btn next-btn">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
                 </div>
+                <div class="pet-name">像素小黄鸡</div>
             </div>
             
             <div class="pet-stats">
@@ -769,7 +932,7 @@
                 <div id="chatArea">
                     <div class="chat-messages" id="chatMessages">
                         <div class="message pet-message">
-                            你好主人！我是小黄鸡，让我们一起开始美好的时光吧！
+                            你好主人！我是像素小黄鸡，让我们一起开始美好的时光吧！
                         </div>
                         <div class="message pet-message">
                             你可以和我聊天，或者点击下面的按钮照顾我！
@@ -815,6 +978,7 @@
                 <div class="shop-categories">
                     <button class="category-btn active" data-category="food">食物道具</button>
                     <button class="category-btn" data-category="pets">宠物类型</button>
+                    <button class="category-btn" data-category="nft">NFT宠物</button>
                 </div>
                 
                 <div class="shop-items">
@@ -822,7 +986,7 @@
                     <div class="shop-item" data-category="food">
                         <div class="item-icon"><i class="fas fa-hamburger"></i></div>
                         <div class="item-title">美味汉堡</div>
-                        <p class="item-price">¥ 25</p>
+                        <p class="item-price">0.01 BNB</p>
                         <p class="item-desc">恢复饥饿度30点</p>
                         <button class="buy-btn">购买</button>
                     </div>
@@ -830,7 +994,7 @@
                     <div class="shop-item" data-category="food">
                         <div class="item-icon"><i class="fas fa-carrot"></i></div>
                         <div class="item-title">新鲜胡萝卜</div>
-                        <p class="item-price">¥ 15</p>
+                        <p class="item-price">0.005 BNB</p>
                         <p class="item-desc">恢复饥饿度15点</p>
                         <button class="buy-btn">购买</button>
                     </div>
@@ -838,7 +1002,7 @@
                     <div class="shop-item" data-category="food">
                         <div class="item-icon"><i class="fas fa-cookie"></i></div>
                         <div class="item-title">宠物饼干</div>
-                        <p class="item-price">¥ 20</p>
+                        <p class="item-price">0.007 BNB</p>
                         <p class="item-desc">恢复饥饿度20点</p>
                         <button class="buy-btn">购买</button>
                     </div>
@@ -846,7 +1010,7 @@
                     <div class="shop-item" data-category="food">
                         <div class="item-icon"><i class="fas fa-pills"></i></div>
                         <div class="item-title">健康药丸</div>
-                        <p class="item-price">¥ 40</p>
+                        <p class="item-price">0.015 BNB</p>
                         <p class="item-desc">恢复健康值30点</p>
                         <button class="buy-btn">购买</button>
                     </div>
@@ -855,7 +1019,7 @@
                     <div class="shop-item" data-category="pets" style="display: none;">
                         <div class="item-icon"><i class="fas fa-cat"></i></div>
                         <div class="item-title">像素猫咪</div>
-                        <p class="item-price">¥ 120</p>
+                        <p class="item-price">0.1 BNB</p>
                         <p class="item-desc">可爱的猫咪伙伴</p>
                         <button class="buy-btn">购买</button>
                     </div>
@@ -863,7 +1027,7 @@
                     <div class="shop-item" data-category="pets" style="display: none;">
                         <div class="item-icon"><i class="fas fa-dog"></i></div>
                         <div class="item-title">像素小狗</div>
-                        <p class="item-price">¥ 150</p>
+                        <p class="item-price">0.15 BNB</p>
                         <p class="item-desc">忠诚的小狗伙伴</p>
                         <button class="buy-btn">购买</button>
                     </div>
@@ -871,16 +1035,25 @@
                     <div class="shop-item" data-category="pets" style="display: none;">
                         <div class="item-icon"><i class="fas fa-dragon"></i></div>
                         <div class="item-title">像素小龙</div>
-                        <p class="item-price">¥ 200</p>
+                        <p class="item-price">0.2 BNB</p>
                         <p class="item-desc">稀有的小龙伙伴</p>
                         <button class="buy-btn">购买</button>
                     </div>
                     
-                    <div class="shop-item" data-category="pets" style="display: none;">
-                        <div class="item-icon"><i class="fas fa-kiwi-bird"></i></div>
-                        <div class="item-title">像素小鸟</div>
-                        <p class="item-price">¥ 100</p>
-                        <p class="item-desc">活泼的小鸟伙伴</p>
+                    <!-- NFT宠物 -->
+                    <div class="shop-item" data-category="nft" style="display: none;">
+                        <div class="item-icon"><i class="fas fa-crown"></i></div>
+                        <div class="item-title">传奇凤凰</div>
+                        <p class="item-price">0.5 BNB</p>
+                        <p class="item-desc">稀有NFT宠物</p>
+                        <button class="buy-btn">购买</button>
+                    </div>
+                    
+                    <div class="shop-item" data-category="nft" style="display: none;">
+                        <div class="item-icon"><i class="fas fa-dragon"></i></div>
+                        <div class="item-title">暗影龙</div>
+                        <p class="item-price">1.0 BNB</p>
+                        <p class="item-desc">史诗级NFT宠物</p>
                         <button class="buy-btn">购买</button>
                     </div>
                 </div>
@@ -893,28 +1066,28 @@
                 <div class="game-card">
                     <div class="game-icon"><i class="fas fa-running"></i></div>
                     <div class="game-title">宠物赛跑</div>
-                    <p class="game-desc">让你的宠物参加比赛，赢得金币奖励！</p>
+                    <p class="game-desc">让你的宠物参加比赛，赢得BNB奖励！</p>
                     <button class="play-btn">开始游戏</button>
                 </div>
                 
                 <div class="game-card">
                     <div class="game-icon"><i class="fas fa-puzzle-piece"></i></div>
                     <div class="game-title">宠物拼图</div>
-                    <p class="game-desc">完成像素宠物拼图，获得稀有道具！</p>
+                    <p class="game-desc">完成像素宠物拼图，获得稀有NFT！</p>
                     <button class="play-btn">开始游戏</button>
                 </div>
                 
                 <div class="game-card">
                     <div class="game-icon"><i class="fas fa-basketball-ball"></i></div>
                     <div class="game-title">宠物篮球</div>
-                    <p class="game-desc">投掷篮球，获得高分赢得奖励！</p>
+                    <p class="game-desc">投掷篮球，获得高分赢得BNB奖励！</p>
                     <button class="play-btn">开始游戏</button>
                 </div>
                 
                 <div class="game-card">
                     <div class="game-icon"><i class="fas fa-fish"></i></div>
                     <div class="game-title">宠物钓鱼</div>
-                    <p class="game-desc">钓上稀有鱼类，换取珍贵物品！</p>
+                    <p class="game-desc">钓上稀有鱼类，换取珍贵NFT！</p>
                     <button class="play-btn">开始游戏</button>
                 </div>
             </div>
@@ -932,7 +1105,7 @@
                     
                     <div class="coins">
                         <i class="fas fa-coins"></i>
-                        <span>850 金币</span>
+                        <span id="userCoins">0 BNB</span>
                     </div>
                     
                     <div class="user-stats">
@@ -942,8 +1115,8 @@
                         </div>
                         
                         <div class="stat-card">
-                            <div class="stat-title">游戏成就</div>
-                            <div class="stat-number">12</div>
+                            <div class="stat-title">NFT资产</div>
+                            <div class="stat-number">2</div>
                         </div>
                         
                         <div class="stat-card">
@@ -952,14 +1125,14 @@
                         </div>
                         
                         <div class="stat-card">
-                            <div class="stat-title">好友数量</div>
-                            <div class="stat-number">8</div>
+                            <div class="stat-title">游戏次数</div>
+                            <div class="stat-number">28</div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="game-card">
-                    <div class="game-title">宠物成就</div>
+                    <div class="game-title">区块链成就</div>
                     <div class="stat-item" style="margin-top: 15px;">
                         <div class="stat-title">最高亲密度</div>
                         <div class="stat-value">小黄鸡: 95%</div>
@@ -969,8 +1142,8 @@
                     </div>
                     
                     <div class="stat-item">
-                        <div class="stat-title">总游戏时间</div>
-                        <div class="stat-value">28 小时</div>
+                        <div class="stat-title">总交易额</div>
+                        <div class="stat-value">0.85 BNB</div>
                         <div class="stat-bar">
                             <div class="stat-fill" style="background: linear-gradient(to right, #ba68c8, #ab47bc); width: 65%;"></div>
                         </div>
@@ -1000,8 +1173,79 @@
         </div>
     </div>
 
+    <!-- 钱包选择弹窗 -->
+    <div class="wallet-modal" id="walletModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeModal">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="modal-title">选择钱包连接</h2>
+            <div class="wallet-options">
+                <div class="wallet-option" id="metamaskOption">
+                    <div class="wallet-icon">
+                        <i class="fab fa-ethereum"></i>
+                    </div>
+                    <div class="wallet-name">MetaMask</div>
+                </div>
+                <div class="wallet-option">
+                    <div class="wallet-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="wallet-name">Trust Wallet</div>
+                </div>
+                <div class="wallet-option">
+                    <div class="wallet-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="wallet-name">币安钱包</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // 宠物图片数据
+            const pets = [
+                { name: "像素小黄鸡", image: "https://cdn.pixabay.com/photo/2019/08/19/07/45/pets-4415649_1280.png" },
+                { name: "像素猫咪", image: "https://cdn.pixabay.com/photo/2021/07/13/11/34/cat-6463284_1280.png" },
+                { name: "像素小狗", image: "https://cdn.pixabay.com/photo/2023/01/25/19/12/dog-7744036_1280.png" },
+                { name: "像素小龙", image: "https://cdn.pixabay.com/photo/2012/04/13/20/40/dragon-33637_1280.png" }
+            ];
+            
+            let currentPetIndex = 0;
+            const petImage = document.getElementById('petImage');
+            const petName = document.querySelector('.pet-name');
+            const prevBtn = document.querySelector('.prev-btn');
+            const nextBtn = document.querySelector('.next-btn');
+            
+            // 更新宠物显示
+            function updatePetDisplay() {
+                const pet = pets[currentPetIndex];
+                petImage.src = pet.image;
+                petName.textContent = pet.name;
+            }
+            
+            // 切换宠物
+            prevBtn.addEventListener('click', function() {
+                currentPetIndex = (currentPetIndex - 1 + pets.length) % pets.length;
+                updatePetDisplay();
+                
+                // 添加日志
+                addLogEntry(`切换宠物为: ${pets[currentPetIndex].name}`);
+            });
+            
+            nextBtn.addEventListener('click', function() {
+                currentPetIndex = (currentPetIndex + 1) % pets.length;
+                updatePetDisplay();
+                
+                // 添加日志
+                addLogEntry(`切换宠物为: ${pets[currentPetIndex].name}`);
+            });
+            
+            // 初始化
+            updatePetDisplay();
+            
             // 页面切换
             const navItems = document.querySelectorAll('.nav-item');
             const pageContainers = document.querySelectorAll('.page-container');
@@ -1093,6 +1337,9 @@
                     // 滚动到底部
                     chatMessages.scrollTop = chatMessages.scrollHeight;
                     
+                    // 添加到日志
+                    addLogEntry(`发送消息: ${message}`);
+                    
                     // 模拟宠物回复
                     setTimeout(() => {
                         const replies = [
@@ -1110,7 +1357,7 @@
                         
                         const petMessageDiv = document.createElement('div');
                         petMessageDiv.className = 'message pet-message';
-                        petMessageDiv.textContent = `小黄鸡: ${randomReply}`;
+                        petMessageDiv.textContent = `${pets[currentPetIndex].name}: ${randomReply}`;
                         chatMessages.appendChild(petMessageDiv);
                         
                         // 滚动到底部
@@ -1121,6 +1368,9 @@
                         tabs[1].classList.remove('active');
                         chatArea.style.display = 'block';
                         logArea.style.display = 'none';
+                        
+                        // 添加到日志
+                        addLogEntry(`宠物回复: ${randomReply}`);
                     }, 1000);
                 }
             }
@@ -1142,38 +1392,30 @@
                     
                     switch(action) {
                         case 'feed':
-                            message = "你喂了小黄鸡一些食物，它开心地吃了起来！";
+                            message = `你喂了${pets[currentPetIndex].name}一些食物，它开心地吃了起来！`;
                             break;
                         case 'play':
-                            message = "你和小黄鸡一起玩耍，它非常开心！";
+                            message = `你和${pets[currentPetIndex].name}一起玩耍，它非常开心！`;
                             break;
                         case 'clean':
-                            message = "你为小黄鸡清理了环境，它感觉很舒适！";
+                            message = `你为${pets[currentPetIndex].name}清理了环境，它感觉很舒适！`;
                             break;
                         case 'heal':
-                            message = "你照顾了小黄鸡，它的状态更好了！";
+                            message = `你照顾了${pets[currentPetIndex].name}，它的状态更好了！`;
                             break;
                     }
                     
                     // 添加宠物消息
                     const messageDiv = document.createElement('div');
                     messageDiv.className = 'message pet-message';
-                    messageDiv.textContent = `小黄鸡: ${message}`;
+                    messageDiv.textContent = `${pets[currentPetIndex].name}: ${message}`;
                     chatMessages.appendChild(messageDiv);
                     
                     // 滚动到底部
                     chatMessages.scrollTop = chatMessages.scrollHeight;
                     
                     // 添加到日志
-                    const now = new Date();
-                    const timeString = `[${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}]`;
-                    const logEntry = document.createElement('div');
-                    logEntry.className = 'log-entry';
-                    logEntry.innerHTML = `<span class="log-timestamp">${timeString}</span> ${message}`;
-                    logArea.appendChild(logEntry);
-                    
-                    // 滚动到底部
-                    logArea.scrollTop = logArea.scrollHeight;
+                    addLogEntry(message);
                     
                     // 修复：确保聊天标签保持激活状态
                     tabs[0].classList.add('active');
@@ -1183,6 +1425,19 @@
                 });
             });
             
+            // 添加日志条目
+            function addLogEntry(text) {
+                const now = new Date();
+                const timeString = `[${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}]`;
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.innerHTML = `<span class="log-timestamp">${timeString}</span> ${text}`;
+                logArea.appendChild(logEntry);
+                
+                // 滚动到底部
+                logArea.scrollTop = logArea.scrollHeight;
+            }
+            
             // 购买按钮事件
             const buyButtons = document.querySelectorAll('.buy-btn');
             
@@ -1190,7 +1445,16 @@
                 btn.addEventListener('click', function() {
                     const item = this.closest('.shop-item');
                     const itemName = item.querySelector('.item-title').textContent;
-                    alert(`已成功购买 ${itemName}！`);
+                    const itemPrice = item.querySelector('.item-price').textContent;
+                    
+                    if (!isWalletConnected) {
+                        alert('请先连接钱包！');
+                        openWalletModal();
+                        return;
+                    }
+                    
+                    alert(`已成功购买 ${itemName}，花费 ${itemPrice}！`);
+                    addLogEntry(`购买物品: ${itemName} (${itemPrice})`);
                 });
             });
             
@@ -1201,9 +1465,86 @@
                 btn.addEventListener('click', function() {
                     const gameCard = this.closest('.game-card');
                     const gameName = gameCard.querySelector('.game-title').textContent;
+                    
+                    if (!isWalletConnected) {
+                        alert('请先连接钱包！');
+                        openWalletModal();
+                        return;
+                    }
+                    
                     alert(`开始游戏: ${gameName}`);
+                    addLogEntry(`开始游戏: ${gameName}`);
                 });
             });
+            
+            // 钱包连接逻辑
+            const walletModal = document.getElementById('walletModal');
+            const connectWalletBtn = document.getElementById('connectWallet');
+            const closeModalBtn = document.getElementById('closeModal');
+            const metamaskOption = document.getElementById('metamaskOption');
+            const coinAmount = document.getElementById('coinAmount');
+            const userCoins = document.getElementById('userCoins');
+            
+            let isWalletConnected = false;
+            
+            function openWalletModal() {
+                walletModal.style.display = 'flex';
+            }
+            
+            function closeWalletModal() {
+                walletModal.style.display = 'none';
+            }
+            
+            // 打开钱包弹窗
+            connectWalletBtn.addEventListener('click', openWalletModal);
+            
+            // 关闭弹窗
+            closeModalBtn.addEventListener('click', closeWalletModal);
+            
+            // 点击弹窗外部关闭
+            window.addEventListener('click', function(event) {
+                if (event.target === walletModal) {
+                    closeWalletModal();
+                }
+            });
+            
+            // 模拟连接MetaMask
+            metamaskOption.addEventListener('click', function() {
+                // 模拟连接过程
+                connectWalletBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> 连接中...';
+                
+                setTimeout(function() {
+                    // 模拟连接成功
+                    isWalletConnected = true;
+                    connectWalletBtn.innerHTML = '<i class="fas fa-check"></i> 已连接';
+                    connectWalletBtn.classList.add('connected');
+                    
+                    // 更新代币余额
+                    const balance = (Math.random() * 5).toFixed(4);
+                    coinAmount.textContent = `${balance} BNB`;
+                    userCoins.textContent = `${balance} BNB`;
+                    
+                    // 添加日志
+                    addLogEntry('成功连接MetaMask钱包');
+                    addLogEntry(`钱包余额: ${balance} BNB`);
+                    
+                    closeWalletModal();
+                }, 1500);
+            });
+            
+            // 模拟切换至BSC链
+            function switchToBSC() {
+                if (isWalletConnected) {
+                    addLogEntry('正在切换至BSC链...');
+                    
+                    setTimeout(function() {
+                        addLogEntry('已成功切换至BSC链');
+                    }, 1000);
+                }
+            }
+            
+            // 初始化切换至BSC链
+            switchToBSC();
         });
     </script>
 </body>
